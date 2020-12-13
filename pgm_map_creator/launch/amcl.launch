@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="map_file" default="$(find pgm_map_creator)/maps/my_map.yaml"/>
+
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <node name="amcl" pkg="amcl" type="amcl" output="screen">
+    <param name="odom_frame_id" value="odom"/>
+    <param name="odom_model_type" value="diff-corrected"/>
+    <param name="base_frame_id" value="robot_footprint"/>
+    <param name="global_frame_id" value="map"/>
+
+  </node>
+
+  <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
+
+  <param name="base_global_planner" value="navfn/NavfnROS" />
+  <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
+
+  <rosparam file="$(find amcl)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+  <rosparam file="$(find amcl)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+  <rosparam file="$(find amcl)/config/local_costmap_params.yaml" command="load" />
+  <rosparam file="$(find amcl)/config/global_costmap_params.yaml" command="load" />
+  <rosparam file="$(find amcl)/config/base_local_planner_params.yaml" command="load" />
+  </node>
+
+</launch>
